@@ -6,7 +6,7 @@ import Footer from './components/Footer/Footer';
 
 // Import our new pages
 import Home from './pages/Home';
-import About from './pages/About';
+import Docs from './pages/Docs';
 import Contact from './pages/Contact';
 import NotFound from './pages/NotFound';
 
@@ -21,7 +21,7 @@ function App() {
       <Main>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
+          <Route path="/docs" element={<Docs />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

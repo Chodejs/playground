@@ -11,12 +11,12 @@ export default function Footer() {
             <p
                 className="hover:text-accent text-md underline"
             >
-                &copy; 2023 Your Company. All rights reserved.
+                &copy; 2026 Mara Central. All rights reserved.
             </p>
             <p
                 className="hover:text-accent text-md"
             >
-                Design by Chris and Emma
+                Designed by Chris and Emma
             </p>
         </footer>
     );

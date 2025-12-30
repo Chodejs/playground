@@ -11,7 +11,7 @@ export default function Header() {
             <h2
              className="text-primary text-2xl font-bold font-inherit m-0"
              >
-                Welcome to Ormen Lange
+                Welcome to Mara Central API
             </h2>
         </header>
     );

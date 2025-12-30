@@ -4,7 +4,7 @@ import { devLog } from '../../Cfunc/app';
 export default function Nav() {
     const links = [
         { id: 1, title: 'Home', path: '/' },
-        { id: 2, title: 'About', path: '/about' },
+        { id: 2, title: 'Docs', path: '/docs' },
         { id: 3, title: 'Contact', path: '/contact' },
     ];
 

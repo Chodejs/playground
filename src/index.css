@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+:root {
+  --header-height: 4rem; 
+  --space-lg: 2rem;     
+  --color-bg-body: #f8fafc; 
+}
+
+@theme {
+  /* Colors */
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-accent: #f59e0b;
+  --color-surface: #ffffff;
+  --color-text-main: #0f172a;
+  --color-text-muted: #64748b;
+  --color-border: #e2e8f0;
+  --color-body: var(--color-bg-body);
+
+  /* ⬇️ The Magic: Map custom spacing keys ⬇️ */
+  --spacing-header: var(--header-height); 
+  --spacing-footer: var(--footer-height); 
+  --spacing-lg: var(--space-lg);
+  --spacing-md: var(--space-md); 
+  --spacing-xl: var(--space-xl);    
+}

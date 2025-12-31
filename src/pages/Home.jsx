@@ -1,14 +1,19 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useFetch } from '../hooks/useFetch';
 import { useToast } from '../context/ToastContext';
+import { Link } from 'react-router-dom';
+import ImageModal from '../components/ImageModal/ImageModal';
 
 export default function Home() {
   const { addToast } = useToast();
-  // UPDATED URL: Pointing to your new API subdomain
+  // Pointing to your API subdomain
   const { data, loading, error } = useFetch('/');
   
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // NEW: State for the Modal
+  const [selectedImage, setSelectedImage] = useState(null);
   
   // PAGINATION STATE
   const [currentPage, setCurrentPage] = useState(1);
@@ -25,18 +30,32 @@ export default function Home() {
   const filteredImages = useMemo(() => {
     if (!data) return [];
     
-    // Reset to page 1 whenever filters change so user isn't stuck on page 10 of empty results
+    // Reset to page 1 whenever filters change
     return data.filter((item) => {
+      // Search matches title OR tags (Added tags search!)
+      const searchLower = searchTerm.toLowerCase();
+      const matchesSearch = item.title.toLowerCase().includes(searchLower) || 
+                            (item.tags && item.tags.some(tag => tag.toLowerCase().includes(searchLower)));
+
       const matchesCategory = activeCategory === 'all' || item.category === activeCategory;
-      const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase());
+      
       return matchesCategory && matchesSearch;
     });
   }, [data, activeCategory, searchTerm]);
 
-  // Reset page when filter changes (useEffect is safer than inside useMemo)
+  // Reset page when filter changes
   useEffect(() => {
     setCurrentPage(1);
   }, [activeCategory, searchTerm]);
+
+  // Disable body scroll when modal is open
+  useEffect(() => {
+    if (selectedImage) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+  }, [selectedImage]);
 
   // 3. PAGINATION LOGIC
   const totalPages = Math.ceil(filteredImages.length / itemsPerPage);
@@ -45,13 +64,13 @@ export default function Home() {
     return filteredImages.slice(startIndex, startIndex + itemsPerPage);
   }, [filteredImages, currentPage]);
 
-  // Scroll to top when page changes
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const copyToClipboard = (url) => {
+  const copyToClipboard = (e, url) => {
+    e.stopPropagation(); // Prevent opening modal when clicking copy
     navigator.clipboard.writeText(url);
     addToast('Image URL copied to clipboard!', 'success');
   };
@@ -60,7 +79,7 @@ export default function Home() {
   if (error) return <div className="text-center p-20 text-red-500 font-bold">Error: {error}</div>;
 
   return (
-    <section className="p-6 max-w-7xl mx-auto min-h-screen flex flex-col">
+    <section className="p-6 max-w-7xl mx-auto min-h-screen flex flex-col relative">
       
       {/* HEADER & CONTROLS */}
       <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-4 border-b border-gray-100 pb-6">
@@ -81,7 +100,7 @@ export default function Home() {
             </div>
             <input
               type="text"
-              placeholder="Search assets..."
+              placeholder="Search by title or tag..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 pr-4 py-2 w-full border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition-all shadow-sm"
@@ -115,7 +134,11 @@ export default function Home() {
       {currentImages.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
           {currentImages.map((image) => (
-            <div key={image.id} className="group flex flex-col bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <div 
+                key={image.id} 
+                onClick={() => setSelectedImage(image)} // <--- CLICK OPENS MODAL
+                className="group flex flex-col bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+            >
               
               {/* Image Container */}
               <div className="aspect-video w-full overflow-hidden bg-gray-100 relative">
@@ -126,18 +149,16 @@ export default function Home() {
                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                  />
                  {/* Overlay Actions */}
-                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3 backdrop-blur-sm">
+                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3 backdrop-blur-[2px]">
+                   <span className="text-white font-bold tracking-widest text-sm border-2 border-white px-4 py-2 rounded uppercase">
+                     View Details
+                   </span>
                    <button 
-                     onClick={() => window.open(image.url, '_blank')}
-                     className="bg-white text-gray-900 px-4 py-2 rounded-lg text-xs font-bold hover:bg-gray-100 transition-colors"
+                     onClick={(e) => copyToClipboard(e, image.url)}
+                     className="absolute bottom-3 right-3 bg-white/20 hover:bg-white text-white hover:text-black p-2 rounded-full backdrop-blur-md transition-all"
+                     title="Copy URL"
                    >
-                     OPEN FULL
-                   </button>
-                   <button 
-                     onClick={() => copyToClipboard(image.url)}
-                     className="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-500 transition-colors"
-                   >
-                     COPY URL
+                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
                    </button>
                  </div>
               </div>
@@ -149,13 +170,29 @@ export default function Home() {
                     <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-1 rounded-md">
                       {image.category.replace('-', ' ')}
                     </span>
-                    <span className="text-[10px] text-gray-400 font-mono">
-                      {image.width} × {image.height}
-                    </span>
+                    {image.rating > 0 && (
+                        <span className="text-yellow-400 text-xs">
+                            {'★'.repeat(image.rating)}
+                        </span>
+                    )}
                   </div>
                   <h3 className="text-md font-bold text-gray-800 truncate" title={image.title}>
                     {image.title}
                   </h3>
+                  {/* Preview Tag Line */}
+                  {image.tags && image.tags.length > 0 && (
+                      <p className="text-xs text-gray-400 mt-1 truncate">
+                          {image.tags.map(t => '#' + t).join(' ')}
+                      </p>
+                  )}
+                  <div className="p-4"> 
+                    <h4 
+                      onClick={() => setSelectedImage(image)}
+                      className="block w-full bg-slate-900 text-white text-center font-semibold py-2 mt-4 rounded-md shadow-sm hover:bg-slate-800 transition-colors md:hidden"
+                    >
+                      View Details
+                    </h4>
+                </div>
                 </div>
               </div>
             </div>
@@ -170,7 +207,7 @@ export default function Home() {
 
       {/* PAGINATION CONTROLS */}
       {filteredImages.length > itemsPerPage && (
-        <div className="mt-auto pt-8 border-t border-gray-100 flex justify-center items-center gap-2">
+        <div className="mt-auto pt-8 border-t border-gray-100 flex justify-start md:justify-center items-center gap-2 overflow-x-auto no-scrollbar">
           
           <button
             onClick={() => handlePageChange(currentPage - 1)}
@@ -180,8 +217,7 @@ export default function Home() {
             Previous
           </button>
 
-          {/* Simple Page Numbers */}
-          <div className="flex gap-1">
+          <div className="flex justify-center my-8 w-full">
              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                 <button
                   key={page}
@@ -206,6 +242,14 @@ export default function Home() {
             Next
           </button>
         </div>
+      )}
+
+      {/* --- MODAL INJECTION --- */}
+      {selectedImage && (
+          <ImageModal 
+            image={selectedImage} 
+            onClose={() => setSelectedImage(null)} 
+          />
       )}
 
     </section>

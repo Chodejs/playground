@@ -79,13 +79,43 @@ export default function About() {
         <div className="bg-gray-900 text-green-400 p-6 rounded-xl shadow-lg font-mono text-sm overflow-x-auto">
 <pre>{`[
   {
-    "id": "a981...",
-    "title": "robot_city.jpg",
-    "url": "https://api.maracentral.com/images/ai/robot.jpg",
+    "id": "047ee07bc1ff5fb22e207cb1d6e96753",
+    "title": "The Green Machine",
+    "filename": "bearded-man-eating-cooked-kale-spinach-greens-healthy-vegan-2.jpg",
+    "url": "https://api.maracentral.com/images/ai-generated/bearded-man-eating-cooked-kale-spinach-greens-healthy-vegan-2.jpg",
     "category": "ai-generated",
-    "width": 1920,
-    "height": 1080
-  },
+    "width": 2048,
+    "height": 1152,
+    "description": "A close-up, warm portrait of a man with a beard eating some greens.",
+    "extended_description": null,
+    "rating": 0,
+    "tags": [
+      "vegan",
+      "collard greens",
+      "eating",
+      "vegetarian",
+      "whole foods",
+      "black man",
+      "spinach",
+      "portrait",
+      "healthy diet",
+      "comfort food",
+      "sweater",
+      "dining",
+      "nutrition",
+      "kale",
+      "beard"
+    ],
+    "date_taken": "2025:12:31 13:35:36",
+    "camera": {
+      "model": "",
+      "shutter": "",
+      "aperture": "",
+      "iso": "",
+      "lens": "",
+      "focal": ""
+    }
+  }
   ...
 ]`}</pre>
         </div>
@@ -94,7 +124,7 @@ export default function About() {
       {/* JAVASCRIPT EXAMPLE */}
       <section>
         <h2 className="text-2xl font-bold mb-6">React / JS Example</h2>
-        <div className="bg-gray-900 text-gray-300 p-6 rounded-xl shadow-lg font-mono text-sm relative group">
+        <div className="bg-gray-900 text-gray-300 p-6 rounded-xl shadow-lg font-mono text-sm relative group overflow-x-auto">
              <button 
                 onClick={() => copyCode(`const fetchImages = async () => {
       const res = await fetch('https://api.maracentral.com/');
